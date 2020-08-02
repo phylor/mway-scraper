@@ -16,6 +16,8 @@ bundle exec ruby main.rb
 
 ## Frontend
 
+![Screenshot](docs/screenshot.png)
+
 To run it:
 
 ```
