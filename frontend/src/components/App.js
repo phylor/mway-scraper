@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import { v4 as uuidv4 } from "uuid";
 
 import bikes from "../../ebikes.json";
-import styled from "styled-components";
+import Bike from "./Bike";
 
 const CityFilter = ({ cities, onChange }) => (
   <select onChange={onChange}>
@@ -13,63 +12,6 @@ const CityFilter = ({ cities, onChange }) => (
       </option>
     ))}
   </select>
-);
-
-const Image = styled.img`
-  max-width: 100%;
-`;
-
-const FlexRow = styled.div`
-  display: flex;
-  justify-content: space-between;
-`;
-
-const FlexCol = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-const Variant = ({ name, filteredCity, cities }) => {
-  if (cities.includes(filteredCity)) {
-    return <AvailableVariant name={name} />;
-  } else {
-    return <UnstyledVariant name={name} />;
-  }
-};
-
-const UnstyledVariant = ({ name, className }) => (
-  <div className={className}>{name}</div>
-);
-const AvailableVariant = styled(UnstyledVariant)`
-  color: green;
-  font-weight: bold;
-`;
-
-const Bike = ({ title, imageUrl, variants, url, filteredCity }) => (
-  <div>
-    <div>
-      <a href={url} target="_blank">
-        <Image src={imageUrl} />
-      </a>
-    </div>
-    <div>
-      <b>{title}</b>
-    </div>
-    <FlexRow>
-      {variants &&
-        variants.map((variant) => (
-          <FlexCol key={variant.name}>
-            <Variant
-              name={variant.name}
-              filteredCity={filteredCity}
-              cities={variant.cities}
-            />
-            {variant.cities &&
-              variant.cities.map((city) => <div key={uuidv4()}>{city}</div>)}
-          </FlexCol>
-        ))}
-    </FlexRow>
-  </div>
 );
 
 const onlyUnique = (value, index, self) => self.indexOf(value) === index;
