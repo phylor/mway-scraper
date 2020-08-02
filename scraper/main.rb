@@ -1,6 +1,7 @@
 require 'mechanize'
 require 'byebug'
 require 'uri'
+require 'json'
 
 class MWayScraper
   def initialize(browser)
@@ -19,11 +20,15 @@ class MWayScraper
       product_url = product.search('a.product--image').first['href']
       name = product.search('a.product--title').first.text.strip
 
+      product_scraper = MWayProduct.new(@browser, product_url)
+      product_scraper.load
+
       {
         name: name,
         url: product_url,
         image_url: image_url,
-        variants: MWayProduct.new(@browser, product_url).variants
+        variants: product_scraper.variants,
+        properties: product_scraper.properties
       }
     end
   rescue
@@ -37,10 +42,32 @@ class MWayProduct
     @url = url
   end
 
-  def variants
-    page = @browser.get(@url)
+  def load
+    @page = @browser.get(@url)
+  end
 
-    size_variants = page
+  def properties
+    @page.search('.product--properties-label').map do |property_label|
+      property = case property_label.text.strip
+      when 'Akku:' then :battery
+      when 'Antrieb:', 'Motor:' then :motor
+      when 'Anzahl Gänge:' then :gears
+      when 'Display:' then :display
+      when 'Federgabel:' then :suspension
+      when 'Gewicht:' then :weight
+      when 'Modelljahr:' then :year
+      end
+
+      next unless property
+
+      value = property_label.next_element.text.strip
+
+      { property => value }
+    end.compact.reduce({}, &:merge)
+  end
+
+  def variants
+    size_variants = @page
       .search('p.configurator--label')
       .select { |variant| variant.text == 'Grösse:' }
       .first
@@ -69,18 +96,12 @@ end
 
 browser = Mechanize.new
 
-unless File.exists?('ebikes.yml')
+unless File.exists?('ebikes.json')
   scraper = MWayScraper.new(browser)
 
   page1 = scraper.products(1)
   page2 = scraper.products(2)
 
   all_products = page1.compact + page2.compact
-  File.write('ebikes.yml', all_products.to_yaml)
-end
-
-all_products = YAML.load(File.read('ebikes.yml'))
-
-all_products.map do |product|
-  puts product[:name]
+  File.write('ebikes.json', all_products.to_json)
 end

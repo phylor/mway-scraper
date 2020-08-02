@@ -6,11 +6,6 @@ const Image = styled.img`
   max-width: 100%;
 `;
 
-const FlexRow = styled.div`
-  display: flex;
-  justify-content: space-between;
-`;
-
 const FlexCol = styled.div`
   display: flex;
   flex-direction: column;
@@ -68,7 +63,54 @@ const Title = styled.div`
   margin-top: 0.5rem;
 `;
 
-const Bike = ({ title, imageUrl, variants, url, filteredCity }) => (
+const propertyLabel = (property) => {
+  switch (property) {
+    case "battery":
+      return "Akku";
+    case "motor":
+      return "Motor";
+    case "gears":
+      return "Gänge";
+    case "display":
+      return "Display";
+    case "suspension":
+      return "Gabel";
+    case "weight":
+      return "Gewicht";
+    case "year":
+      return "Jahr";
+  }
+};
+
+const FlexRowMiddle = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const PropertiesLayout = ({ className, properties }) => (
+  <div className={className}>
+    {Object.entries(properties).map(([property, value]) => (
+      <FlexRowMiddle key={property}>
+        <div className="label">{propertyLabel(property)}</div>
+        <div>{value}</div>
+      </FlexRowMiddle>
+    ))}
+  </div>
+);
+
+const Properties = styled(PropertiesLayout)`
+  margin-top: 0.25rem;
+  color: #888;
+  font-size: 0.9rem;
+
+  .label {
+    font-size: 0.7rem;
+    font-weight: bold;
+    margin-right: 0.25rem;
+  }
+`;
+
+const Bike = ({ title, imageUrl, variants, url, filteredCity, properties }) => (
   <BikeContainer>
     <div>
       <a href={url} target="_blank">
@@ -76,6 +118,7 @@ const Bike = ({ title, imageUrl, variants, url, filteredCity }) => (
       </a>
     </div>
     <Title>{title}</Title>
+    <Properties properties={properties} />
     <div>
       {variants &&
         variants.map((variant) => (

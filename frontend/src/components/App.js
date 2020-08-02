@@ -55,6 +55,7 @@ const App = () => {
           variants={bike.variants}
           filteredCity={city}
           url={bike.url}
+          properties={bike.properties}
         />
       ))}
     </>
